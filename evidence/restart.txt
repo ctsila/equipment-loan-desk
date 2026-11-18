@@ -1,0 +1,3 @@
+$ docker restart equipment-loan-desk
+equipment-loan-desk
+PASS: Both tenants’ loan lists, statuses and timestamps matched after restart.

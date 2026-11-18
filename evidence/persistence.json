@@ -1,0 +1,210 @@
+{
+  "A": {
+    "request": {
+      "method": "GET",
+      "path": "/v1/loans",
+      "tenant_credential": "A"
+    },
+    "before": {
+      "status": 200,
+      "json": {
+        "tenant_id": "A",
+        "organisation": "Northside Media Workshop",
+        "plan": "Starter",
+        "limit": 2,
+        "active": 2,
+        "loans": [
+          {
+            "id": "63f67d78d75f44e49c45004adb2c068a",
+            "tenant_id": "A",
+            "asset_code": "CAM-01",
+            "borrower_ref": "A-101",
+            "checked_out_at": "2026-11-18T14:00:55.861+00:00",
+            "returned_at": "2026-11-18T14:00:55.886+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "a0a29986f83845a6a0c97dae2ff2671a",
+            "tenant_id": "A",
+            "asset_code": "CAM-02",
+            "borrower_ref": "A-201",
+            "checked_out_at": "2026-11-18T14:00:55.925+00:00",
+            "returned_at": "2026-11-18T14:00:55.965+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "b830afdcf03a449ea8da22882a5a4e5e",
+            "tenant_id": "A",
+            "asset_code": "MIC-01",
+            "borrower_ref": "A-202",
+            "checked_out_at": "2026-11-18T14:00:55.933+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "9d1741651966409685b1e3603c4f6f63",
+            "tenant_id": "A",
+            "asset_code": "LIGHT-01",
+            "borrower_ref": "A-203",
+            "checked_out_at": "2026-11-18T14:00:55.973+00:00",
+            "returned_at": null,
+            "status": "active"
+          }
+        ]
+      }
+    },
+    "after": {
+      "status": 200,
+      "json": {
+        "tenant_id": "A",
+        "organisation": "Northside Media Workshop",
+        "plan": "Starter",
+        "limit": 2,
+        "active": 2,
+        "loans": [
+          {
+            "id": "63f67d78d75f44e49c45004adb2c068a",
+            "tenant_id": "A",
+            "asset_code": "CAM-01",
+            "borrower_ref": "A-101",
+            "checked_out_at": "2026-11-18T14:00:55.861+00:00",
+            "returned_at": "2026-11-18T14:00:55.886+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "a0a29986f83845a6a0c97dae2ff2671a",
+            "tenant_id": "A",
+            "asset_code": "CAM-02",
+            "borrower_ref": "A-201",
+            "checked_out_at": "2026-11-18T14:00:55.925+00:00",
+            "returned_at": "2026-11-18T14:00:55.965+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "b830afdcf03a449ea8da22882a5a4e5e",
+            "tenant_id": "A",
+            "asset_code": "MIC-01",
+            "borrower_ref": "A-202",
+            "checked_out_at": "2026-11-18T14:00:55.933+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "9d1741651966409685b1e3603c4f6f63",
+            "tenant_id": "A",
+            "asset_code": "LIGHT-01",
+            "borrower_ref": "A-203",
+            "checked_out_at": "2026-11-18T14:00:55.973+00:00",
+            "returned_at": null,
+            "status": "active"
+          }
+        ]
+      }
+    },
+    "identical": true
+  },
+  "B": {
+    "request": {
+      "method": "GET",
+      "path": "/v1/loans",
+      "tenant_credential": "B"
+    },
+    "before": {
+      "status": 200,
+      "json": {
+        "tenant_id": "B",
+        "organisation": "Westbank Makerspace",
+        "plan": "Plus",
+        "limit": 5,
+        "active": 3,
+        "loans": [
+          {
+            "id": "6d4907e15cea4530ba06aa4932331120",
+            "tenant_id": "B",
+            "asset_code": "CAM-01",
+            "borrower_ref": "B-101",
+            "checked_out_at": "2026-11-18T14:00:55.872+00:00",
+            "returned_at": "2026-11-18T14:00:55.900+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "5598676d8ef1463f8db8b78808037144",
+            "tenant_id": "B",
+            "asset_code": "SOLDER-01",
+            "borrower_ref": "B-201",
+            "checked_out_at": "2026-11-18T14:00:55.909+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "b22f6448a55147f5b105af81ef473cfc",
+            "tenant_id": "B",
+            "asset_code": "DRILL-01",
+            "borrower_ref": "B-202",
+            "checked_out_at": "2026-11-18T14:00:55.946+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "166294bf20724ac1ab3fa4922462d1ac",
+            "tenant_id": "B",
+            "asset_code": "MULTI-01",
+            "borrower_ref": "B-203",
+            "checked_out_at": "2026-11-18T14:00:55.955+00:00",
+            "returned_at": null,
+            "status": "active"
+          }
+        ]
+      }
+    },
+    "after": {
+      "status": 200,
+      "json": {
+        "tenant_id": "B",
+        "organisation": "Westbank Makerspace",
+        "plan": "Plus",
+        "limit": 5,
+        "active": 3,
+        "loans": [
+          {
+            "id": "6d4907e15cea4530ba06aa4932331120",
+            "tenant_id": "B",
+            "asset_code": "CAM-01",
+            "borrower_ref": "B-101",
+            "checked_out_at": "2026-11-18T14:00:55.872+00:00",
+            "returned_at": "2026-11-18T14:00:55.900+00:00",
+            "status": "returned"
+          },
+          {
+            "id": "5598676d8ef1463f8db8b78808037144",
+            "tenant_id": "B",
+            "asset_code": "SOLDER-01",
+            "borrower_ref": "B-201",
+            "checked_out_at": "2026-11-18T14:00:55.909+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "b22f6448a55147f5b105af81ef473cfc",
+            "tenant_id": "B",
+            "asset_code": "DRILL-01",
+            "borrower_ref": "B-202",
+            "checked_out_at": "2026-11-18T14:00:55.946+00:00",
+            "returned_at": null,
+            "status": "active"
+          },
+          {
+            "id": "166294bf20724ac1ab3fa4922462d1ac",
+            "tenant_id": "B",
+            "asset_code": "MULTI-01",
+            "borrower_ref": "B-203",
+            "checked_out_at": "2026-11-18T14:00:55.955+00:00",
+            "returned_at": null,
+            "status": "active"
+          }
+        ]
+      }
+    },
+    "identical": true
+  }
+}

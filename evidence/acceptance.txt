@@ -1,0 +1,4 @@
+PASS: Both tenants checked out, read and returned CAM-01 in their own workspaces.
+PASS: A received 404 for B’s loan on read and return. B’s before and after records matched.
+PASS: A’s third checkout was refused at 2/2. B reached 3/5. A reused a slot after a return.
+Recorded 36 HTTP exchanges in local-evidence/acceptance.json

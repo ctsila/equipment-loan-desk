@@ -1,0 +1,6 @@
+Container: equipment-loan-desk | Image: equipment-loan-desk:1 | Up 1 second
+Volume: loan-evidence-20261118140052 -> /data
+
+Python 3.12.16
+SQLite 3.46.1
+Health: {"status": "ok"}
