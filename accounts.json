@@ -1,0 +1,11 @@
+[
+  {"token":"demo-alex","tenant":"A","role":"employee","id":"A101","name":"Alex Morgan","office":"Berlin","manager":"AM01"},
+  {"token":"demo-priya","tenant":"A","role":"employee","id":"A102","name":"Priya Rao","office":"Singapore","manager":"AM02"},
+  {"token":"demo-nora","tenant":"A","role":"manager","id":"AM01","name":"Nora Weber","office":"Berlin"},
+  {"token":"demo-daniel","tenant":"A","role":"manager","id":"AM02","name":"Daniel Lee","office":"Singapore"},
+  {"token":"demo-a-berlin-it","tenant":"A","role":"it","id":"AI01","name":"Berlin IT","office":"Berlin"},
+  {"token":"demo-a-singapore-it","tenant":"A","role":"it","id":"AI02","name":"Singapore IT","office":"Singapore"},
+  {"token":"demo-maya","tenant":"B","role":"employee","id":"B201","name":"Maya Lim","office":"Singapore","manager":"BM01"},
+  {"token":"demo-riley","tenant":"B","role":"manager","id":"BM01","name":"Riley Chen","office":"Singapore"},
+  {"token":"demo-b-singapore-it","tenant":"B","role":"it","id":"BI01","name":"Singapore IT","office":"Singapore"}
+]

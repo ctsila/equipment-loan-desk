@@ -1,75 +1,47 @@
-# Equipment Loan Desk
+# IT Equipment Desk
 
-A small SaaS prototype for workshops that lend shared equipment. Staff can check out an item, view their workshop's loans and record a return. Cloud Computing Practical Works 5 and 6, ITMO University.
+A small internal request portal for mice, second monitors, keyboards and USB flash drives. An employee sends a request to their direct manager. After manager approval it goes to the IT team for the employee’s office. The manager or IT can decline at their step by giving a reason that the employee can see. This prototype uses two fictional companies and synthetic accounts for Cloud Computing Practical Works 5 and 6.
 
 - [Lab 5 design](docs/DESIGN.md)
-- [Lab 6 test results](docs/RESULTS.md)
+- [Lab 6 results](docs/RESULTS.md)
 
-## Build and start locally
+## Run locally
 
-Use Docker and Python 3.10 or later. The API and test scripts use the standard library. The initial database is empty and the two demo organisations are already configured.
+Use Docker and Python 3.10 or newer for the acceptance script. The service has no Python package dependencies.
 
 ```sh
-git clone https://github.com/ctsila/equipment-loan-desk.git
-cd equipment-loan-desk
+git clone --branch it-equipment-desk https://github.com/ctsila/equipment-loan-desk.git it-equipment-desk
+cd it-equipment-desk
 docker pull python:3.12-slim
-docker build --pull=false --network=none -t equipment-loan-desk:1 .
-docker run --detach --name equipment-loan-desk \
-  --publish 127.0.0.1:8080:8080 \
-  --mount source=equipment-loans-demo,target=/data equipment-loan-desk:1
+docker build --pull=false --network=none -t it-equipment-desk:1 .
+docker run --detach --name it-equipment-desk --publish 127.0.0.1:8080:8080 \
+  --mount source=it-desk-demo,target=/data it-equipment-desk:1
+```
+
+Open `http://127.0.0.1:8080/`. The first run creates an empty database in `it-desk-demo`. The account switcher uses public, preconfigured **demo** tokens. Use these synthetic profiles in the form.
+
+| Company | Employee and ID | Office | Assigned manager | IT team |
+| --- | --- | --- | --- | --- |
+| A · Northstar Services | Alex Morgan · `A101` | Berlin | Nora Weber | Berlin IT |
+| A · Northstar Services | Priya Rao · `A102` | Singapore | Daniel Lee | Singapore IT |
+| B · Horizon Design | Maya Lim · `B201` | Singapore | Riley Chen | Singapore IT |
+
+For example, select Alex and request a second monitor. Enter `Alex Morgan`, `A101`, Berlin, and a reason such as “I need a second screen to compare tickets with system logs.” Submit, select Nora Weber and approve. Select Berlin IT under Northstar and approve again. Switch back to Alex to see the final status. Horizon’s Singapore IT is a separate account from Northstar’s Singapore IT.
+
+To try a decline, submit another request. In the manager’s queue choose **Decline**, explain the decision and click **Confirm decline**. The request closes without going to IT. For an IT decline, approve a new request as the manager and then follow the same steps in the local IT queue. The employee can see the comment next to the reviewer who declined.
+
+## API and checks
+
+```sh
 curl -fsS http://127.0.0.1:8080/health
+curl -fsS -H 'Authorization: Bearer demo-alex' http://127.0.0.1:8080/v1/requests
+curl -fsS -H 'Authorization: Bearer demo-maya' http://127.0.0.1:8080/v1/requests
 ```
 
-The build can use a locally loaded base image. The named volume stores `loans.sqlite` and survives a container restart. The tokens below are public demo credentials for the service on localhost.
+`POST /v1/requests` accepts `equipment`, `employee_name`, `employee_id`, `office` and `reason`. `GET /v1/requests/{id}` retrieves a scoped record. The assigned manager and correct IT account use `POST /v1/requests/{id}/decision` with `{"decision":"approve"}` or `{"decision":"reject","note":"Your current keyboard can be repaired."}`. A decline requires a non-blank note of up to 200 characters. A missing or blank note returns `400 decline_reason_required` and leaves the request in its current stage. The API represents a declined request with status `rejected`. Account tokens and office assignments are in [accounts.json](accounts.json).
 
-| Tenant | Fictional organisation | Plan | Maximum active loans | Bearer token |
-| --- | --- | --- | ---: | --- |
-| A | Northside Media Workshop | Starter | 2 | `demo-northside-token` |
-| B | Westbank Makerspace | Plus | 5 | `demo-westbank-token` |
+Run `python3 tools/acceptance.py` against a fresh database. The runner creates synthetic requests and saves the exchanges in `local-evidence/acceptance.json`. Use a separate fresh volume for this run if the form already has records. To start with a different volume, remove the demo container and rerun the Docker command with a new volume name.
 
-## Run the checks
+## Evidence
 
-Run the acceptance script first on a fresh volume. It creates the synthetic data it needs. It writes requests, statuses and JSON responses to `local-evidence/acceptance.json` and exits with an error if a check fails.
-
-```sh
-python3 tools/acceptance.py
-docker restart equipment-loan-desk
-curl -fsS http://127.0.0.1:8080/health
-python3 tools/check_persistence.py
-```
-
-If the health request runs before the application has restarted, repeat it before running the persistence check. To repeat acceptance, stop and remove the demonstration container with `docker rm -f equipment-loan-desk`. Start it with a new volume name, such as `equipment-loans-demo-2`.
-
-## Try the workflow manually
-
-Start with room under the plan limit. Substitute the real `id` from the checkout response before reading or returning the loan. Each `asset_code` and `borrower_ref` is an uppercase reference of 1 to 32 letters, digits, underscores or hyphens, starting with a letter or digit.
-
-```sh
-API=http://127.0.0.1:8080
-curl -sSi -H 'Authorization: Bearer demo-northside-token' \
-  -H 'Content-Type: application/json' -d '{"asset_code":"CAM-09","borrower_ref":"A-901"}' \
-  "$API/v1/loans"
-curl -sSi -H 'Authorization: Bearer demo-northside-token' "$API/v1/loans"
-ID='<id from the checkout response>'
-curl -sSi -H 'Authorization: Bearer demo-northside-token' "$API/v1/loans/$ID"
-curl -sSi -X POST -H 'Authorization: Bearer demo-northside-token' "$API/v1/loans/$ID/return"
-```
-
-The following uses Tenant B's own workspace and attempts to read A's loan. Compare the status from the last request with A's owned read above.
-
-```sh
-curl -sSi -H 'Authorization: Bearer demo-westbank-token' \
-  -H 'Content-Type: application/json' -d '{"asset_code":"KIT-09","borrower_ref":"B-901"}' \
-  "$API/v1/loans"
-curl -sSi -H 'Authorization: Bearer demo-westbank-token' "$API/v1/loans"
-curl -sSi -H 'Authorization: Bearer demo-westbank-token' "$API/v1/loans/$ID"
-```
-
-| Operation | Success | Relevant rejection |
-| --- | --- | --- |
-| `POST /v1/loans` | `201`, active loan with server-assigned owner | `409 active_loan_limit_reached` or `409 asset_already_checked_out` |
-| `GET /v1/loans` | `200`, owned history and active usage | `401 invalid_token` |
-| `GET /v1/loans/{id}` | `200`, owned loan | `404 loan_not_found` |
-| `POST /v1/loans/{id}/return` | `200`, returned loan | `404 loan_not_found` |
-
-An active loan occupies one slot. Returning it frees that slot and preserves the completed loan in history. Repeating a return produces the same record and return timestamp. Each tenant can use its own asset codes independently, and an asset can have only one active loan in that tenant.
+The [evidence folder](evidence/) contains the VM build, server startup, browser actions and HTTP exchanges. Lab 6 includes screenshots of the form, review queues and employee status.

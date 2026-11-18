@@ -1,15 +1,16 @@
-VM: CC-PW56 on Oracle VirtualBox
-2026-11-18T14:00:52Z
+VM: CC-PW56 on VirtualBox
+2026-11-18T16:56:26Z
 3.24.3
 Linux 6.18.58-0-virt x86_64
 Docker client=29.9.3 server=29.9.3
 Python 3.14.8
-Logical CPUs: 1
               total        used        free      shared  buff/cache   available
-Mem:           1.9G      145.6M        1.6G      184.0K      221.2M        1.7G
+Mem:           1.9G      143.6M        1.6G      184.0K      226.5M        1.7G
 Swap:          1.9G           0        1.9G
-8e006c5d8ce0ac33f9c3de7d961d56b8a06a59773f5deec630b9a9ac212096a6  Dockerfile
-961a348f7f4eaa617facd80221f167d856748f112e79547227a14865f893de99  service.py
-8d9b2d9fe368bc48b4d19d5c82da653d13e2f98c04ddbaad184f29b10c6c095a  tools/client.py
-9b20594d3b190b739e96d76f061781e983aeeb00cecf74e57414c2fde13cbca8  tools/acceptance.py
-212c0753990c1b7c48f27a278bfab8e2da8adf19a04705a0ea90c1fd13efe362  tools/check_persistence.py
+4f1b8583bf15ab751a875f71be8d7873e9037ebe0ea9f18edf5cdd70b2bd4091  service.py
+2961d1a9023a7781a4179fe84b9f537ae0f32d36f0eb4df8fc53a4e13229f4d8  accounts.json
+f381a736ef8583a31a6678c432ab39368fe35194126240e4d05fe83c1aaacb4f  Dockerfile
+d18bd362f8c98917e5c2de886842b4ebe36bb995fb00282eae66361f0f10e272  public/app.css
+745b170a0f6d6b72b55831b13b43ef6052f94418ee9a615c4cc6336718a0bd9c  public/app.js
+db8cec127975dd6e3f2e83db81128ce8fc027f88e57150582e526f009ca8773a  public/index.html
+7495d6ca5d66afcbc99956a04d448981a1a0db5812dfaf7b7b0fc99ad52d95c2  tools/acceptance.py

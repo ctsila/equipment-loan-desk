@@ -1,6 +1,5 @@
-Container: equipment-loan-desk | Image: equipment-loan-desk:1 | Up 1 second
-Volume: loan-evidence-20261118140052 -> /data
-
+$ docker run --detach --name it-desk-api-20261118165626 --publish 8080:8080 --mount source=it-requests-api-20261118165626,target=/data it-equipment-desk:1
+2ac89292c8f171c69c454fb751c103823e5f47bbf3e1544f13ffc2e6313e7cf7
+Health: {"status": "ok"}
 Python 3.12.16
 SQLite 3.46.1
-Health: {"status": "ok"}

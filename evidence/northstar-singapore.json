@@ -1,0 +1,242 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "normal.singapore.submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-priya",
+      "request": {
+        "equipment": "Keyboard",
+        "employee_name": "Priya Rao",
+        "employee_id": "A102",
+        "office": "Singapore",
+        "reason": "I need a keyboard for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "b91d7a58c5094e789376ce89424492c8",
+        "tenant_id": "A",
+        "employee_id": "A102",
+        "employee_name": "Priya Rao",
+        "manager_id": "AM02",
+        "office": "Singapore",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Daniel Lee",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.singapore.manager_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-daniel",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "b91d7a58c5094e789376ce89424492c8",
+            "tenant_id": "A",
+            "employee_id": "A102",
+            "employee_name": "Priya Rao",
+            "manager_id": "AM02",
+            "office": "Singapore",
+            "equipment": "Keyboard",
+            "reason": "I need a keyboard for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_manager",
+            "manager_decision": null,
+            "manager_at": null,
+            "manager_note": null,
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Daniel Lee",
+            "it_team": "Singapore IT",
+            "region": "Asia"
+          }
+        ],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.singapore.it_before",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-singapore-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.singapore.it_early",
+      "method": "POST",
+      "path": "/v1/requests/b91d7a58c5094e789376ce89424492c8/decision",
+      "account": "demo-a-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 409,
+      "http": 409,
+      "response": {
+        "error": "wrong_approval_stage"
+      }
+    },
+    {
+      "check": "normal.singapore.manager_approves",
+      "method": "POST",
+      "path": "/v1/requests/b91d7a58c5094e789376ce89424492c8/decision",
+      "account": "demo-daniel",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "b91d7a58c5094e789376ce89424492c8",
+        "tenant_id": "A",
+        "employee_id": "A102",
+        "employee_name": "Priya Rao",
+        "manager_id": "AM02",
+        "office": "Singapore",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Daniel Lee",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.singapore.it_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-singapore-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "b91d7a58c5094e789376ce89424492c8",
+            "tenant_id": "A",
+            "employee_id": "A102",
+            "employee_name": "Priya Rao",
+            "manager_id": "AM02",
+            "office": "Singapore",
+            "equipment": "Keyboard",
+            "reason": "I need a keyboard for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_it",
+            "manager_decision": "approve",
+            "manager_at": "2026-11-18T16:56:29+00:00",
+            "manager_note": "",
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Daniel Lee",
+            "it_team": "Singapore IT",
+            "region": "Asia"
+          }
+        ],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.singapore.it_approves",
+      "method": "POST",
+      "path": "/v1/requests/b91d7a58c5094e789376ce89424492c8/decision",
+      "account": "demo-a-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "b91d7a58c5094e789376ce89424492c8",
+        "tenant_id": "A",
+        "employee_id": "A102",
+        "employee_name": "Priya Rao",
+        "manager_id": "AM02",
+        "office": "Singapore",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Daniel Lee",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.singapore.employee_final",
+      "method": "GET",
+      "path": "/v1/requests/b91d7a58c5094e789376ce89424492c8",
+      "account": "demo-priya",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "b91d7a58c5094e789376ce89424492c8",
+        "tenant_id": "A",
+        "employee_id": "A102",
+        "employee_name": "Priya Rao",
+        "manager_id": "AM02",
+        "office": "Singapore",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Daniel Lee",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    }
+  ]
+}

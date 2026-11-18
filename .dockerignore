@@ -1,3 +1,6 @@
 **
 !Dockerfile
 !service.py
+!accounts.json
+!public/
+!public/**

@@ -1,114 +1,165 @@
-"""Demonstrate checkout, tenant isolation and active-loan allowances over HTTP."""
+"""Exercise the demo through the same HTTP API used by the web interface."""
 
 from argparse import ArgumentParser
 from datetime import datetime, timezone
 from pathlib import Path
-from uuid import uuid4
+from urllib.error import HTTPError
+from urllib.request import Request, urlopen
 import json
 
-from client import LOANS, request
+
+REQUESTS = '/v1/requests'
+ACCOUNTS = json.loads((Path(__file__).resolve().parents[1]/'accounts.json').read_text())
+DEMO = {account['token']: account for account in ACCOUNTS}
 
 
-def require(condition, explanation):
-    if not condition:
-        raise AssertionError(explanation)
+def order(token, equipment):
+    account = DEMO[token]
+    return {'equipment': equipment, 'employee_name': account['name'], 'employee_id': account['id'],
+            'office': account['office'], 'reason': f'I need a {equipment.lower()} for my regular workstation tasks.'}
 
 
-def item(asset_code, borrower_ref):
-    return {'asset_code': asset_code, 'borrower_ref': borrower_ref}
-
-
-class AcceptanceRun:
+class Run:
     def __init__(self, url):
-        self.url = url
-        self.evidence = {'started_utc': datetime.now(timezone.utc).isoformat(), 'url': url,
+        self.url = url.rstrip('/')
+        self.evidence = {'started_utc': datetime.now(timezone.utc).isoformat(), 'url': self.url,
                          'results': {}, 'exchanges': []}
 
-    def call(self, label, method, path, tenant=None, body=None, expected=200):
-        response = request(self.url, method, path, tenant, body)
-        self.evidence['exchanges'].append({'check': label, 'request': {'method': method, 'path': path,
-            'tenant_credential': tenant, 'json': body}, 'expected_http': expected, 'response': response})
-        require(response['status'] == expected, f"{label}: expected {expected}, received {response}")
-        return response['json']
+    def call(self, key, method, path, token=None, payload=None, expected=200):
+        headers = {'Accept': 'application/json'}
+        if token:
+            headers['Authorization'] = 'Bearer '+token
+        if payload is not None:
+            headers['Content-Type'] = 'application/json'
+        data = None if payload is None else json.dumps(payload).encode()
+        request = Request(self.url+path, method=method, headers=headers, data=data)
+        try:
+            response = urlopen(request, timeout=8)
+        except HTTPError as error:
+            response = error
+        with response:
+            status, body = response.status, json.load(response)
+        self.evidence['exchanges'].append({'check': key, 'method': method, 'path': path,
+                                          'account': token, 'request': payload, 'expected_http': expected,
+                                          'http': status, 'response': body})
+        assert status == expected, (key, expected, status, body)
+        return body
 
-    def pass_check(self, key, text):
-        self.evidence['results'][key] = text
+    def submit(self, key, token, equipment, expected=201):
+        return self.call(key, 'POST', REQUESTS, token, order(token, equipment), expected)
+
+    def decide(self, key, token, item, decision='approve', expected=200, *, note=None):
+        payload = {'decision': decision}
+        if note is not None:
+            payload['note'] = note
+        return self.call(key, 'POST', f"{REQUESTS}/{item['id']}/decision", token, payload, expected)
 
 
-def normal_use(run):
+def validation(run):
     call = run.call
-    opened = {}
-    for tenant in ('A', 'B'):
-        initial = call(f'normal.{tenant}.initial', 'GET', LOANS, tenant)
-        require(initial['loans'] == [] and initial['active'] == 0, 'Use a fresh Docker volume for this test')
-        loan = call(f'normal.{tenant}.checkout', 'POST', LOANS, tenant, item('CAM-01', f'{tenant}-101'), 201)
-        require(loan['tenant_id'] == tenant and loan['status'] == 'active' and loan['returned_at'] is None,
-                'New loan should be owned and active')
-        opened[tenant] = loan
+    call('validation.health', 'GET', '/health')
+    call('validation.unauthenticated', 'GET', REQUESTS, expected=401)
+    input_data = order('demo-alex', 'Second monitor')
+    missing_id = dict(input_data)
+    del missing_id['employee_id']
+    assert call('validation.missing_id', 'POST', REQUESTS, 'demo-alex', missing_id, 400)['error'] == 'invalid_fields'
+    assert call('validation.short_reason', 'POST', REQUESTS, 'demo-alex', {**input_data, 'reason':'Need it'}, 400)['error'] == 'reason_too_short_or_long'
+    assert call('validation.wrong_office', 'POST', REQUESTS, 'demo-alex', {**input_data, 'office':'Singapore'}, 400)['error'] == 'profile_mismatch'
+    assert call('validation.empty_a', 'GET', REQUESTS, 'demo-alex')['requests'] == []
+    assert call('validation.empty_b', 'GET', REQUESTS, 'demo-maya')['requests'] == []
 
-    dup = call('normal.A.duplicate', 'POST', LOANS, 'A', item('CAM-01', 'A-102'), 409)
-    require(dup == {'error': 'asset_already_checked_out'}, 'Same tenant double checkout should fail')
 
-    for tenant, loan in opened.items():
-        path = f"{LOANS}/{loan['id']}"
-        require(call(f'normal.{tenant}.read', 'GET', path, tenant) == loan, 'Owned read differs from checkout')
-        listing = call(f'normal.{tenant}.list_active', 'GET', LOANS, tenant)
-        require(listing['loans'] == [loan] and listing['active'] == 1, 'Active list contains unexpected rows')
-        returned = call(f'normal.{tenant}.return', 'POST', path+'/return', tenant)
-        require(returned['status'] == 'returned' and returned['returned_at'] and returned['id'] == loan['id'],
-                'Return must close the same loan')
-        if tenant == 'A':
-            retry = call('normal.A.return_retry', 'POST', path+'/return', tenant)
-            require(retry == returned, 'Return retry changed the record')
-        after = call(f'normal.{tenant}.history', 'GET', LOANS, tenant)
-        require(after['active'] == 0 and after['loans'] == [returned], 'Return should free capacity and keep history')
-    run.pass_check('normal', 'PASS: Both tenants checked out, read and returned CAM-01 in their own workspaces.')
+def normal(run, label, employee, manager, it, equipment, wrong_manager=None, wrong_it=None):
+    prefix = 'normal.'+label
+    token = DEMO[employee]
+    item = run.submit(prefix+'.submit', employee, equipment)
+    assert item['status'] == 'pending_manager' and item['manager_id'] == DEMO[manager]['id']
+    assert item['employee_id'] == token['id'] and item['office'] == DEMO[it]['office']
+    assert item['region'] == ('Europe' if token['office'] == 'Berlin' else 'Asia')
+    queue = run.call(prefix+'.manager_queue', 'GET', REQUESTS, manager)
+    assert item in queue['requests']
+    it_queue = run.call(prefix+'.it_before', 'GET', REQUESTS, it)
+    assert item['id'] not in [row['id'] for row in it_queue['requests']]
+    assert run.decide(prefix+'.it_early', it, item, expected=409) == {'error':'wrong_approval_stage'}
+    if wrong_manager:
+        assert run.decide(prefix+'.wrong_manager', wrong_manager, item, expected=404) == {'error':'request_not_found'}
+    interim = run.decide(prefix+'.manager_approves', manager, item)
+    assert interim['status'] == 'pending_it' and interim['manager_decision'] == 'approve' and interim['manager_at']
+    assert interim['it_decision'] is None
+    assert interim in run.call(prefix+'.it_queue', 'GET', REQUESTS, it)['requests']
+    if wrong_it:
+        assert run.decide(prefix+'.wrong_it', wrong_it, item, expected=404) == {'error':'request_not_found'}
+    final = run.decide(prefix+'.it_approves', it, item)
+    assert final['status'] == 'approved' and final['it_decision'] == 'approve' and final['it_at']
+    assert final == run.call(prefix+'.employee_final', 'GET', f'{REQUESTS}/{item["id"]}', employee)
+    return final
 
 
 def isolation(run):
-    call = run.call
-    owner = call('isolation.B.checkout', 'POST', LOANS, 'B', item('SOLDER-01', 'B-201'), 201)
-    path = f"{LOANS}/{owner['id']}"
-    before = call('isolation.B.before', 'GET', path, 'B')
-    foreign = call('isolation.A.read', 'GET', path, 'A', expected=404)
-    missing = call('isolation.A.unknown', 'GET', f'{LOANS}/{uuid4().hex}', 'A', expected=404)
-    refused_return = call('isolation.A.return', 'POST', path+'/return', 'A', expected=404)
-    after = call('isolation.B.after', 'GET', path, 'B')
-    require(foreign == missing == refused_return == {'error': 'loan_not_found'}, 'Foreign lookup disclosed data')
-    require(before == after == owner and after['returned_at'] is None, 'Tenant B loan changed')
-    listing = call('isolation.A.list', 'GET', LOANS, 'A')
-    require(all(row['tenant_id'] == 'A' and row['id'] != owner['id'] for row in listing['loans']),
-            'Tenant A list included tenant B data')
-    run.pass_check('isolation', 'PASS: A received 404 for B’s loan on read and return. B’s before and after records matched.')
+    item = run.submit('isolation.b_submit', 'demo-maya', 'Mouse')
+    before = run.decide('isolation.b_manager', 'demo-riley', item)
+    path = f"{REQUESTS}/{item['id']}"
+    assert run.call('isolation.a_employee', 'GET', path, 'demo-priya', expected=404) == {'error':'request_not_found'}
+    assert run.decide('isolation.a_manager', 'demo-daniel', item, expected=404) == {'error':'request_not_found'}
+    assert run.decide('isolation.a_it_same_office', 'demo-a-singapore-it', item, expected=404) == {'error':'request_not_found'}
+    after = run.call('isolation.b_after', 'GET', path, 'demo-maya')
+    assert before == after and after['status'] == 'pending_it' and after['it_decision'] is None
+    a_queue = run.call('isolation.a_queue', 'GET', REQUESTS, 'demo-a-singapore-it')
+    assert item['id'] not in [row['id'] for row in a_queue['requests']]
 
 
-def plan_limit(run):
-    call = run.call
-    first = call('limit.A.first', 'POST', LOANS, 'A', item('CAM-02', 'A-201'), 201)
-    call('limit.A.second', 'POST', LOANS, 'A', item('MIC-01', 'A-202'), 201)
-    before = call('limit.A.before', 'GET', LOANS, 'A')
-    require((before['plan'], before['active'], before['limit']) == ('Starter', 2, 2), 'Starter did not reach 2/2')
-    candidate = item('LIGHT-01', 'A-203')
-    denial = call('limit.A.third', 'POST', LOANS, 'A', candidate, 409)
-    require(denial == {'error': 'active_loan_limit_reached', 'plan': 'Starter', 'limit': 2, 'active': 2},
-            'Unexpected quota error')
-    require(call('limit.A.after', 'GET', LOANS, 'A') == before, 'Rejected checkout changed A’s list')
+def declines(run):
+    required = {'error': 'decline_reason_required'}
+    manager_reason = 'Your current keyboard can be repaired by the service desk.'
+    item = run.submit('decline.manager_submit', 'demo-alex', 'Keyboard')
+    path = f"{REQUESTS}/{item['id']}"
+    assert run.decide('decline.manager_missing', 'demo-nora', item, 'reject', 400) == required
+    assert run.call('decline.manager_unchanged', 'GET', path, 'demo-alex') == item
+    closed = run.decide('decline.manager_with_reason', 'demo-nora', item, 'reject', note=manager_reason)
+    assert closed['status'] == 'rejected' and closed['manager_decision'] == 'reject'
+    assert closed['manager_note'] == manager_reason and closed['manager_at']
+    assert closed['it_decision'] is None and closed['it_note'] is None
+    assert run.call('decline.manager_employee_view', 'GET', path, 'demo-alex') == closed
+    queue = run.call('decline.manager_it_queue', 'GET', REQUESTS, 'demo-a-berlin-it')
+    assert all(row['id'] != item['id'] for row in queue['requests'])
+    assert run.decide('decline.manager_terminal', 'demo-nora', item, expected=409) == {'error':'wrong_approval_stage'}
 
-    call('limit.B.second', 'POST', LOANS, 'B', item('DRILL-01', 'B-202'), 201)
-    call('limit.B.third', 'POST', LOANS, 'B', item('MULTI-01', 'B-203'), 201)
-    b = call('limit.B.after', 'GET', LOANS, 'B')
-    require((b['plan'], b['active'], b['limit']) == ('Plus', 3, 5), 'Plus did not reach 3/5')
-    require(all(row['tenant_id'] == 'B' for row in b['loans']), 'Tenant B list included foreign rows')
+    it_reason = 'This office requires an encrypted USB drive from the approved catalogue.'
+    item = run.submit('decline.it_submit', 'demo-alex', 'USB flash drive')
+    path = f"{REQUESTS}/{item['id']}"
+    pending = run.decide('decline.it_manager_approves', 'demo-nora', item)
+    assert run.decide('decline.it_blank', 'demo-a-berlin-it', item, 'reject', 400, note=' \t\n ') == required
+    assert run.decide('decline.it_too_long', 'demo-a-berlin-it', item, 'reject', 400,
+                      note='x'*201) == {'error': 'invalid_decision'}
+    assert run.call('decline.it_unchanged', 'GET', path, 'demo-alex') == pending
+    closed = run.decide('decline.it_with_reason', 'demo-a-berlin-it', item, 'reject', note=f'  {it_reason}  ')
+    assert closed['status'] == 'rejected' and closed['manager_decision'] == 'approve'
+    assert closed['it_decision'] == 'reject' and closed['it_note'] == it_reason and closed['it_at']
+    assert run.call('decline.it_employee_view', 'GET', path, 'demo-alex') == closed
+    assert run.decide('decline.it_terminal', 'demo-a-berlin-it', item, expected=409) == {'error':'wrong_approval_stage'}
 
-    call('limit.A.free_slot', 'POST', f"{LOANS}/{first['id']}/return", 'A')
-    available = call('limit.A.freed', 'GET', LOANS, 'A')
-    require(available['active'] == 1 and len(available['loans']) == len(before['loans']),
-            'Return should free one slot and preserve history')
-    created = call('limit.A.retry_checkout', 'POST', LOANS, 'A', candidate, 201)
-    require(created['status'] == 'active' and created['asset_code'] == 'LIGHT-01', 'Retried checkout did not create the requested loan')
-    final = call('limit.A.final', 'GET', LOANS, 'A')
-    require(final['active'] == 2 and len(final['loans']) == len(before['loans'])+1, 'New checkout did not reuse freed capacity')
-    run.pass_check('limit', 'PASS: A’s third checkout was refused at 2/2. B reached 3/5. A reused a slot after a return.')
+
+def limits(run):
+    a1 = run.submit('limit.a_first', 'demo-alex', 'Keyboard')
+    run.decide('limit.a_first_manager', 'demo-nora', a1)
+    run.submit('limit.a_second', 'demo-priya', 'Mouse')
+    before = run.call('limit.a_before', 'GET', REQUESTS, 'demo-alex')
+    assert (before['open'], before['limit']) == (2, 2)
+    refused = run.submit('limit.a_third', 'demo-alex', 'USB flash drive', 409)
+    assert refused == {'error':'open_request_limit_reached','open':2,'limit':2,'plan':'Starter'}
+    assert run.call('limit.a_after', 'GET', REQUESTS, 'demo-alex') == before
+    run.submit('limit.b_second', 'demo-maya', 'Second monitor')
+    run.submit('limit.b_third', 'demo-maya', 'Keyboard')
+    b = run.call('limit.b_usage', 'GET', REQUESTS, 'demo-maya')
+    assert (b['open'], b['limit']) == (3, 5)
+    closed = run.decide('limit.a_close', 'demo-a-berlin-it', a1, 'reject',
+                        note='The office has a spare keyboard that can be used instead.')
+    assert closed['status'] == 'rejected' and closed['it_decision'] == 'reject'
+    freed = run.call('limit.a_freed', 'GET', REQUESTS, 'demo-alex')
+    assert freed['open'] == 1 and closed in freed['requests']
+    retry = run.submit('limit.a_retry', 'demo-alex', 'USB flash drive')
+    assert retry['status'] == 'pending_manager'
+    assert run.call('limit.a_final', 'GET', REQUESTS, 'demo-alex')['open'] == 2
 
 
 def main():
@@ -116,24 +167,29 @@ def main():
     parser.add_argument('--url', default='http://127.0.0.1:8080')
     parser.add_argument('--output', type=Path, default=Path('local-evidence/acceptance.json'))
     args = parser.parse_args()
-    run = AcceptanceRun(args.url)
+    run = Run(args.url)
     try:
-        run.call('health', 'GET', '/health')
-        run.call('auth.missing_token', 'GET', LOANS, expected=401)
-        run.call('auth.reject_owner_input', 'POST', LOANS, 'A',
-                 {**item('FAKE-01', 'A-100'), 'tenant_id': 'B'}, 400)
-        normal_use(run)
+        validation(run)
+        normal(run, 'berlin', 'demo-alex', 'demo-nora', 'demo-a-berlin-it', 'Second monitor',
+               wrong_manager='demo-daniel', wrong_it='demo-a-singapore-it')
+        normal(run, 'singapore', 'demo-priya', 'demo-daniel', 'demo-a-singapore-it', 'Keyboard')
+        normal(run, 'horizon', 'demo-maya', 'demo-riley', 'demo-b-singapore-it', 'USB flash drive')
+        run.evidence['results']['normal'] = 'PASS: both tenants completed manager and local IT approval. Northstar used Berlin and Singapore.'
         isolation(run)
-        plan_limit(run)
+        run.evidence['results']['isolation'] = 'PASS: A was refused B’s request, including with an IT account in the same city. B’s record stayed intact.'
+        declines(run)
+        run.evidence['results']['declines'] = 'PASS: manager and IT declines require a reason. The employee can see the decision and reason.'
+        limits(run)
+        run.evidence['results']['limit'] = 'PASS: Starter stayed at 2/2 after refusal. Plus reached 3/5. Closing a request let Starter retry.'
     except Exception as error:
-        run.evidence['failure'] = f'{type(error).__name__}: {error}'
+        run.evidence['failure'] = repr(error)
         raise
     finally:
         args.output.parent.mkdir(parents=True, exist_ok=True)
-        args.output.write_text(json.dumps(run.evidence, indent=2)+'\n', encoding='utf-8')
+        args.output.write_text(json.dumps(run.evidence, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
     for result in run.evidence['results'].values():
         print(result)
-    print(f"Recorded {len(run.evidence['exchanges'])} HTTP exchanges in {args.output}")
+    print(f"Captured {len(run.evidence['exchanges'])} HTTP exchanges.")
 
 
 if __name__ == '__main__':

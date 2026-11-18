@@ -1,0 +1,182 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "isolation.b_submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-maya",
+      "request": {
+        "equipment": "Mouse",
+        "employee_name": "Maya Lim",
+        "employee_id": "B201",
+        "office": "Singapore",
+        "reason": "I need a mouse for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "013079864d994bf3bfb053d28ff2a01b",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "Mouse",
+        "reason": "I need a mouse for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "isolation.b_manager",
+      "method": "POST",
+      "path": "/v1/requests/013079864d994bf3bfb053d28ff2a01b/decision",
+      "account": "demo-riley",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "013079864d994bf3bfb053d28ff2a01b",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "Mouse",
+        "reason": "I need a mouse for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "isolation.a_employee",
+      "method": "GET",
+      "path": "/v1/requests/013079864d994bf3bfb053d28ff2a01b",
+      "account": "demo-priya",
+      "request": null,
+      "expected_http": 404,
+      "http": 404,
+      "response": {
+        "error": "request_not_found"
+      }
+    },
+    {
+      "check": "isolation.a_manager",
+      "method": "POST",
+      "path": "/v1/requests/013079864d994bf3bfb053d28ff2a01b/decision",
+      "account": "demo-daniel",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 404,
+      "http": 404,
+      "response": {
+        "error": "request_not_found"
+      }
+    },
+    {
+      "check": "isolation.a_it_same_office",
+      "method": "POST",
+      "path": "/v1/requests/013079864d994bf3bfb053d28ff2a01b/decision",
+      "account": "demo-a-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 404,
+      "http": 404,
+      "response": {
+        "error": "request_not_found"
+      }
+    },
+    {
+      "check": "isolation.b_after",
+      "method": "GET",
+      "path": "/v1/requests/013079864d994bf3bfb053d28ff2a01b",
+      "account": "demo-maya",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "013079864d994bf3bfb053d28ff2a01b",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "Mouse",
+        "reason": "I need a mouse for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "isolation.a_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-singapore-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "b91d7a58c5094e789376ce89424492c8",
+            "tenant_id": "A",
+            "employee_id": "A102",
+            "employee_name": "Priya Rao",
+            "manager_id": "AM02",
+            "office": "Singapore",
+            "equipment": "Keyboard",
+            "reason": "I need a keyboard for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "approved",
+            "manager_decision": "approve",
+            "manager_at": "2026-11-18T16:56:29+00:00",
+            "manager_note": "",
+            "it_decision": "approve",
+            "it_at": "2026-11-18T16:56:29+00:00",
+            "it_note": "",
+            "manager_name": "Daniel Lee",
+            "it_team": "Singapore IT",
+            "region": "Asia"
+          }
+        ],
+        "open": 0,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    }
+  ]
+}

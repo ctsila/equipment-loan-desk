@@ -1,0 +1,257 @@
+{
+  "url": "http://127.0.0.1:18766/",
+  "checks": [
+    "Whitespace could not submit a decline.",
+    "Cancelling cleared the decline form.",
+    "The manager decline skipped IT.",
+    "The employee saw both decline reasons under the correct reviewer."
+  ],
+  "actions": [
+    {
+      "method": "POST",
+      "path": "/v1/requests",
+      "http": 201,
+      "request": {
+        "equipment": "Second monitor",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "I need a second screen to compare support tickets with system logs during my shift."
+      },
+      "response": {
+        "id": "d427cab1f09a40dfb3fdb12d0a390c10",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second screen to compare support tickets with system logs during my shift.",
+        "created_at": "2026-11-18T16:58:30+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests/d427cab1f09a40dfb3fdb12d0a390c10/decision",
+      "http": 200,
+      "request": {
+        "decision": "approve"
+      },
+      "response": {
+        "id": "d427cab1f09a40dfb3fdb12d0a390c10",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second screen to compare support tickets with system logs during my shift.",
+        "created_at": "2026-11-18T16:58:30+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:58:30+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests/d427cab1f09a40dfb3fdb12d0a390c10/decision",
+      "http": 200,
+      "request": {
+        "decision": "approve"
+      },
+      "response": {
+        "id": "d427cab1f09a40dfb3fdb12d0a390c10",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second screen to compare support tickets with system logs during my shift.",
+        "created_at": "2026-11-18T16:58:30+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:58:30+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:58:30+00:00",
+        "it_note": "",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests",
+      "http": 201,
+      "request": {
+        "equipment": "Keyboard",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "The keys on my current keyboard often stick when I enter ticket details."
+      },
+      "response": {
+        "id": "b9605691821342658cb1fe694d638b04",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "The keys on my current keyboard often stick when I enter ticket details.",
+        "created_at": "2026-11-18T16:58:30+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests/b9605691821342658cb1fe694d638b04/decision",
+      "http": 200,
+      "request": {
+        "decision": "reject",
+        "note": "Your current keyboard can be repaired by the service desk."
+      },
+      "response": {
+        "id": "b9605691821342658cb1fe694d638b04",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "The keys on my current keyboard often stick when I enter ticket details.",
+        "created_at": "2026-11-18T16:58:30+00:00",
+        "status": "rejected",
+        "manager_decision": "reject",
+        "manager_at": "2026-11-18T16:58:31+00:00",
+        "manager_note": "Your current keyboard can be repaired by the service desk.",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests",
+      "http": 201,
+      "request": {
+        "equipment": "USB flash drive",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "I need removable storage to hand diagnostic exports to the field support team."
+      },
+      "response": {
+        "id": "e39a1c7d948f4365a1c78bb10409a861",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need removable storage to hand diagnostic exports to the field support team.",
+        "created_at": "2026-11-18T16:58:31+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests/e39a1c7d948f4365a1c78bb10409a861/decision",
+      "http": 200,
+      "request": {
+        "decision": "approve"
+      },
+      "response": {
+        "id": "e39a1c7d948f4365a1c78bb10409a861",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need removable storage to hand diagnostic exports to the field support team.",
+        "created_at": "2026-11-18T16:58:31+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:58:31+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "method": "POST",
+      "path": "/v1/requests/e39a1c7d948f4365a1c78bb10409a861/decision",
+      "http": 200,
+      "request": {
+        "decision": "reject",
+        "note": "This office requires an encrypted USB drive from the approved catalogue."
+      },
+      "response": {
+        "id": "e39a1c7d948f4365a1c78bb10409a861",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need removable storage to hand diagnostic exports to the field support team.",
+        "created_at": "2026-11-18T16:58:31+00:00",
+        "status": "rejected",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:58:31+00:00",
+        "manager_note": "",
+        "it_decision": "reject",
+        "it_at": "2026-11-18T16:58:31+00:00",
+        "it_note": "This office requires an encrypted USB drive from the approved catalogue.",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    }
+  ]
+}

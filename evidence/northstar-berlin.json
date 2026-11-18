@@ -1,0 +1,270 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "normal.berlin.submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "Second monitor",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "I need a second monitor for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "55b34e1b852b4c67bd31ab24d6a94431",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second monitor for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "normal.berlin.manager_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-nora",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "55b34e1b852b4c67bd31ab24d6a94431",
+            "tenant_id": "A",
+            "employee_id": "A101",
+            "employee_name": "Alex Morgan",
+            "manager_id": "AM01",
+            "office": "Berlin",
+            "equipment": "Second monitor",
+            "reason": "I need a second monitor for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_manager",
+            "manager_decision": null,
+            "manager_at": null,
+            "manager_note": null,
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Nora Weber",
+            "it_team": "Berlin IT",
+            "region": "Europe"
+          }
+        ],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.berlin.it_before",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-berlin-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.berlin.it_early",
+      "method": "POST",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 409,
+      "http": 409,
+      "response": {
+        "error": "wrong_approval_stage"
+      }
+    },
+    {
+      "check": "normal.berlin.wrong_manager",
+      "method": "POST",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431/decision",
+      "account": "demo-daniel",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 404,
+      "http": 404,
+      "response": {
+        "error": "request_not_found"
+      }
+    },
+    {
+      "check": "normal.berlin.manager_approves",
+      "method": "POST",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431/decision",
+      "account": "demo-nora",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "55b34e1b852b4c67bd31ab24d6a94431",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second monitor for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "normal.berlin.it_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-berlin-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "55b34e1b852b4c67bd31ab24d6a94431",
+            "tenant_id": "A",
+            "employee_id": "A101",
+            "employee_name": "Alex Morgan",
+            "manager_id": "AM01",
+            "office": "Berlin",
+            "equipment": "Second monitor",
+            "reason": "I need a second monitor for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_it",
+            "manager_decision": "approve",
+            "manager_at": "2026-11-18T16:56:29+00:00",
+            "manager_note": "",
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Nora Weber",
+            "it_team": "Berlin IT",
+            "region": "Europe"
+          }
+        ],
+        "open": 1,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "normal.berlin.wrong_it",
+      "method": "POST",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431/decision",
+      "account": "demo-a-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 404,
+      "http": 404,
+      "response": {
+        "error": "request_not_found"
+      }
+    },
+    {
+      "check": "normal.berlin.it_approves",
+      "method": "POST",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "55b34e1b852b4c67bd31ab24d6a94431",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second monitor for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "normal.berlin.employee_final",
+      "method": "GET",
+      "path": "/v1/requests/55b34e1b852b4c67bd31ab24d6a94431",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "55b34e1b852b4c67bd31ab24d6a94431",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Second monitor",
+        "reason": "I need a second monitor for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    }
+  ]
+}

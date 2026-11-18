@@ -1,0 +1,124 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "validation.health",
+      "method": "GET",
+      "path": "/health",
+      "account": null,
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "status": "ok"
+      }
+    },
+    {
+      "check": "validation.unauthenticated",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": null,
+      "request": null,
+      "expected_http": 401,
+      "http": 401,
+      "response": {
+        "error": "invalid_token"
+      }
+    },
+    {
+      "check": "validation.missing_id",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "Second monitor",
+        "employee_name": "Alex Morgan",
+        "office": "Berlin",
+        "reason": "I need a second monitor for my regular workstation tasks."
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "invalid_fields",
+        "required": [
+          "employee_id",
+          "employee_name",
+          "equipment",
+          "office",
+          "reason"
+        ]
+      }
+    },
+    {
+      "check": "validation.short_reason",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "Second monitor",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "Need it"
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "reason_too_short_or_long",
+        "minimum": 15,
+        "maximum": 300
+      }
+    },
+    {
+      "check": "validation.wrong_office",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "Second monitor",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Singapore",
+        "reason": "I need a second monitor for my regular workstation tasks."
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "profile_mismatch"
+      }
+    },
+    {
+      "check": "validation.empty_a",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [],
+        "open": 0,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "validation.empty_b",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-maya",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [],
+        "open": 0,
+        "name": "Horizon Design",
+        "plan": "Plus",
+        "limit": 5
+      }
+    }
+  ]
+}

@@ -1,8 +1,9 @@
 FROM python:3.12-slim
 WORKDIR /app
-ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 DB_PATH=/data/loans.sqlite
+ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 DB_PATH=/data/requests.sqlite
 RUN mkdir /data && chown 10001:10001 /data
-COPY service.py .
+COPY service.py accounts.json ./
+COPY public/ public/
 USER 10001:10001
 VOLUME ["/data"]
 EXPOSE 8080

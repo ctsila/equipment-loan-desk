@@ -1,0 +1,242 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "normal.horizon.submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-maya",
+      "request": {
+        "equipment": "USB flash drive",
+        "employee_name": "Maya Lim",
+        "employee_id": "B201",
+        "office": "Singapore",
+        "reason": "I need a usb flash drive for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.horizon.manager_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-riley",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+            "tenant_id": "B",
+            "employee_id": "B201",
+            "employee_name": "Maya Lim",
+            "manager_id": "BM01",
+            "office": "Singapore",
+            "equipment": "USB flash drive",
+            "reason": "I need a usb flash drive for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_manager",
+            "manager_decision": null,
+            "manager_at": null,
+            "manager_note": null,
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Riley Chen",
+            "it_team": "Singapore IT",
+            "region": "Asia"
+          }
+        ],
+        "open": 1,
+        "name": "Horizon Design",
+        "plan": "Plus",
+        "limit": 5
+      }
+    },
+    {
+      "check": "normal.horizon.it_before",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-b-singapore-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [],
+        "open": 1,
+        "name": "Horizon Design",
+        "plan": "Plus",
+        "limit": 5
+      }
+    },
+    {
+      "check": "normal.horizon.it_early",
+      "method": "POST",
+      "path": "/v1/requests/5cceaf5ede4d42afb5a50fb5a0f25d8f/decision",
+      "account": "demo-b-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 409,
+      "http": 409,
+      "response": {
+        "error": "wrong_approval_stage"
+      }
+    },
+    {
+      "check": "normal.horizon.manager_approves",
+      "method": "POST",
+      "path": "/v1/requests/5cceaf5ede4d42afb5a50fb5a0f25d8f/decision",
+      "account": "demo-riley",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.horizon.it_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-b-singapore-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+            "tenant_id": "B",
+            "employee_id": "B201",
+            "employee_name": "Maya Lim",
+            "manager_id": "BM01",
+            "office": "Singapore",
+            "equipment": "USB flash drive",
+            "reason": "I need a usb flash drive for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "pending_it",
+            "manager_decision": "approve",
+            "manager_at": "2026-11-18T16:56:29+00:00",
+            "manager_note": "",
+            "it_decision": null,
+            "it_at": null,
+            "it_note": null,
+            "manager_name": "Riley Chen",
+            "it_team": "Singapore IT",
+            "region": "Asia"
+          }
+        ],
+        "open": 1,
+        "name": "Horizon Design",
+        "plan": "Plus",
+        "limit": 5
+      }
+    },
+    {
+      "check": "normal.horizon.it_approves",
+      "method": "POST",
+      "path": "/v1/requests/5cceaf5ede4d42afb5a50fb5a0f25d8f/decision",
+      "account": "demo-b-singapore-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    },
+    {
+      "check": "normal.horizon.employee_final",
+      "method": "GET",
+      "path": "/v1/requests/5cceaf5ede4d42afb5a50fb5a0f25d8f",
+      "account": "demo-maya",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "5cceaf5ede4d42afb5a50fb5a0f25d8f",
+        "tenant_id": "B",
+        "employee_id": "B201",
+        "employee_name": "Maya Lim",
+        "manager_id": "BM01",
+        "office": "Singapore",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "approved",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "approve",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "",
+        "manager_name": "Riley Chen",
+        "it_team": "Singapore IT",
+        "region": "Asia"
+      }
+    }
+  ]
+}

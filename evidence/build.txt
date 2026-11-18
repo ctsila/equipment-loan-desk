@@ -1,44 +1,47 @@
-$ docker build --pull=false --network=none -t equipment-loan-desk:1 .
+$ docker build --pull=false --network=none -t it-equipment-desk:1 .
 #0 building with "default" instance using docker driver
 
 #1 [internal] load build definition from Dockerfile
-#1 transferring dockerfile: 286B done
+#1 transferring dockerfile: 325B done
 #1 DONE 0.0s
 
 #2 [internal] load metadata for docker.io/library/python:3.12-slim
 #2 DONE 0.0s
 
 #3 [internal] load .dockerignore
-#3 transferring context: 67B done
+#3 transferring context: 102B done
 #3 DONE 0.0s
 
-#4 [1/4] FROM docker.io/library/python:3.12-slim@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177
+#4 [1/5] FROM docker.io/library/python:3.12-slim@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177
 #4 resolve docker.io/library/python:3.12-slim@sha256:05a994d2344eb364cc186910f4fc8786a38215f39f00d0acc25bff33a08f4177 0.0s done
-#4 DONE 0.1s
+#4 DONE 0.0s
 
 #5 [internal] load build context
-#5 transferring context: 8.48kB done
+#5 transferring context: 28.77kB done
 #5 DONE 0.1s
 
-#6 [2/4] WORKDIR /app
+#6 [2/5] WORKDIR /app
 #6 CACHED
 
-#7 [3/4] RUN mkdir /data && chown 10001:10001 /data
-#7 DONE 0.2s
+#7 [3/5] RUN mkdir /data && chown 10001:10001 /data
+#7 CACHED
 
-#8 [4/4] COPY service.py .
+#8 [4/5] COPY service.py accounts.json ./
 #8 DONE 0.1s
 
-#9 exporting to image
-#9 exporting layers
-#9 exporting layers 0.2s done
-#9 exporting manifest sha256:5f02c28391bf8042ea7f12d52ad1f1c42d7148d4e8f8c4ffaf010547b042e9f0
-#9 exporting manifest sha256:5f02c28391bf8042ea7f12d52ad1f1c42d7148d4e8f8c4ffaf010547b042e9f0 0.0s done
-#9 exporting config sha256:69f5f7cee3e0293af985c86655570d85048bb7395ab7f1d75217710344c175d9 0.0s done
-#9 exporting attestation manifest sha256:0dc211275892b2bc8e68c765c3a674bd4b7d6dbb57c10b22274c72aa6582e2d6 0.0s done
-#9 exporting manifest list sha256:4859a0637ea761a14bd290e50aa323be20ab42744ab8700dd456cacc8dcc560b 0.0s done
-#9 naming to docker.io/library/equipment-loan-desk:1
-#9 naming to docker.io/library/equipment-loan-desk:1 done
-#9 unpacking to docker.io/library/equipment-loan-desk:1 0.1s done
-#9 DONE 0.4s
-Image: sha256:4859a0637ea761a14bd290e50aa323be20ab42744ab8700dd456cacc8dcc560b (linux/amd64)
+#9 [5/5] COPY public/ public/
+#9 DONE 0.1s
+
+#10 exporting to image
+#10 exporting layers
+#10 exporting layers 0.2s done
+#10 exporting manifest sha256:7a23231a8dbf143ff3e79773d7879c335a74f564771e55c2fd9d2a8853193e53
+#10 exporting manifest sha256:7a23231a8dbf143ff3e79773d7879c335a74f564771e55c2fd9d2a8853193e53 0.0s done
+#10 exporting config sha256:19810982037566effae4e30d9c898683d6db9de269b1fb792ada0cc36ca98b38 0.0s done
+#10 exporting attestation manifest sha256:25b7d82f980383e0b033d02b3cbbf720395654d096377439674b655a3fe6d57a 0.0s done
+#10 exporting manifest list sha256:bb3e6b8c9f7855c68a1dffada23a6c367c80009731c08d8bc2f59d7bc3db1197 0.0s done
+#10 naming to docker.io/library/it-equipment-desk:1 done
+#10 unpacking to docker.io/library/it-equipment-desk:1
+#10 unpacking to docker.io/library/it-equipment-desk:1 0.1s done
+#10 DONE 0.4s
+Image: sha256:bb3e6b8c9f7855c68a1dffada23a6c367c80009731c08d8bc2f59d7bc3db1197 (linux/amd64)

@@ -1,33 +1,20 @@
-# Lab 6 — Equipment Loan Desk results
+# Lab 6 — IT Equipment Desk results
 
-The image was built and run in Docker on 18 November 2026. All three required checks passed in 36 HTTP exchanges. An additional restart check compared the complete loan lists for both tenants.
-
-| Parameter | Value |
-| --- | --- |
-| VM | CC-PW56, VirtualBox 7.2.22, 1 vCPU, 2 GiB RAM, 8 GiB virtual disk |
-| Guest | Alpine Linux 3.24.3, Linux kernel 6.18.58-0-virt, x86-64 |
-| Docker | 29.9.3 client and server |
-| Container | Python 3.12.16, SQLite 3.46.1, Linux/amd64 |
-| Image | `equipment-loan-desk:1`, `sha256:4859a0637ea761a14bd290e50aa323be20ab42744ab8700dd456cacc8dcc560b` |
-| Data volume | `loan-evidence-20261118140052`, mounted at `/data` |
-
-## Acceptance results
+The Docker run on 18 November 2026 passed all three assignment checks and both decline paths across 68 HTTP exchanges. A second container with a fresh volume served the browser demonstration from the same image.
 
 | Check | Expected | Observed |
 | --- | --- | --- |
-| Normal use | A and B independently check out, view and return an item. Each history retains the returned loan. | **Pass.** Both checkouts returned `201`. Owned read, list and return requests returned `200`. Both moved from one active loan to zero with one returned record. The same `CAM-01` code worked under both tenants. A second active loan for A's own `CAM-01` returned `409 asset_already_checked_out`. Repeating A's return preserved the original timestamp. |
-| Tenant isolation | A cannot read or return B's loan. B's loan stays active and unchanged. | **Pass.** Both attempts using A's token returned `404 loan_not_found`, the same error returned for a random ID. B received `200` before and after with identical bodies. A's list contained only its own records. |
-| Plan limit | A's third active loan fails at 2/2, B's third succeeds and A can reuse a freed slot. | **Pass.** A received `409 active_loan_limit_reached` and its complete list was unchanged. B received `201` for its third checkout and reached 3/5. A returned one loan, dropped to 1/2, and the same previously refused checkout then returned `201`. |
+| Normal use | Each company can submit a request and complete both approvals in order. | Northstar completed one request in Berlin and another in Singapore. Horizon completed one in Singapore. The requests went through `pending_manager`, `pending_it` and `approved`. IT attempts before manager approval got 409. An unassigned manager and the wrong IT office got 404. |
+| Tenant isolation | A cannot read or approve B’s request, and B can still retrieve it. | A’s employee, manager and Singapore IT attempts got 404. B’s before and after records matched and the request still awaited IT. |
+| Plan limit | Starter blocks its next request at 2/2. Plus permits a third. | Northstar reached 2/2 across its two offices, and its third submission got 409 with no change. Horizon’s third got 201 and reached 3/5. After IT declined an open request, Northstar retried successfully. |
+| Decline with explanation | Missing comments leave requests pending. A valid comment closes the request and is visible to the employee. | A missing manager comment and a whitespace-only IT comment each returned 400. Both requests stayed in their stage. Each decline with a reason returned 200. The keyboard request skipped IT after the manager declined. The USB drive request retained its manager approval after IT declined it. |
 
-After `docker restart equipment-loan-desk`, A still had two active loans out of four rows, and B still had three active loans out of four rows. The complete `GET /v1/loans` response for each tenant was equal to its pre-restart response, including returned rows and timestamps.
+The server rejected a missing employee ID, a short reason and a mismatched office with HTTP 400. In the browser I submitted and approved a second monitor at both steps. I also declined a keyboard as Nora Weber and a USB flash drive as Berlin IT after Nora approved it. Alex’s request list showed both decline explanations under the reviewer who entered them.
 
-## Implementation refinements
+The workflow and limits follow the Lab 5 design. I used one account file for the demo identities and office assignments, then added separate browser views for employees, managers and IT. I put the decline form inside the review card so the reviewer could still see the request while writing the reason.
 
-The prototype follows the design workflow and uses the same tenant scopes and plan allowances. Implementation uses a tenant-specific SQLite uniqueness constraint for active assets and a transaction for allowance enforcement. The test scripts record an explicit return retry, demonstrate reuse of capacity and compare the stored records across a restart.
+## Recorded evidence
 
-## Evidence
-
-- [All acceptance requests and responses](../evidence/acceptance.json)
-- [Environment and verified source hashes](../evidence/environment.txt), [Build log](../evidence/build.txt) and [Container start](../evidence/docker-run.txt)
-- [Records before and after restart](../evidence/persistence.json) and [Restart output](../evidence/restart.txt)
-- VM screenshots of [Normal use](../evidence/screenshots/02-normal.png), [Isolation](../evidence/screenshots/03-isolation.png), [Plan limit](../evidence/screenshots/04-limit.png) and [Persistence](../evidence/screenshots/05-persistence.png). The Word report also shows the Docker build and health check.
+- [Build](../evidence/build.txt), [VM and source hashes](../evidence/environment.txt), [Running container](../evidence/container.txt)
+- [Input validation](../evidence/validation.json), [Northstar Berlin](../evidence/northstar-berlin.json), [Northstar Singapore](../evidence/northstar-singapore.json), [Horizon Singapore](../evidence/horizon-singapore.json)
+- [Tenant isolation](../evidence/tenant-isolation.json), [Plan limit](../evidence/plan-limit.json), [Decline checks](../evidence/declines.json), [Browser flow](../evidence/browser-flow.json)

@@ -1,2 +1,0 @@
-$ docker run -d --name equipment-loan-desk -p 127.0.0.1:8080:8080 --mount source=loan-evidence-20261118140052,target=/data equipment-loan-desk:1
-f4b3d9731a89109aeb2d8cae4d9f66e1d47c9332d4742b9c6361c9f6e2294391

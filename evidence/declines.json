@@ -1,0 +1,406 @@
+{
+  "started_utc": "2026-11-18T16:56:29.577004+00:00",
+  "url": "http://127.0.0.1:8080",
+  "exchanges": [
+    {
+      "check": "decline.manager_submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "Keyboard",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "I need a keyboard for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "3565474f76c64e3fa9c76898d799cb4f",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.manager_missing",
+      "method": "POST",
+      "path": "/v1/requests/3565474f76c64e3fa9c76898d799cb4f/decision",
+      "account": "demo-nora",
+      "request": {
+        "decision": "reject"
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "decline_reason_required"
+      }
+    },
+    {
+      "check": "decline.manager_unchanged",
+      "method": "GET",
+      "path": "/v1/requests/3565474f76c64e3fa9c76898d799cb4f",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "3565474f76c64e3fa9c76898d799cb4f",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.manager_with_reason",
+      "method": "POST",
+      "path": "/v1/requests/3565474f76c64e3fa9c76898d799cb4f/decision",
+      "account": "demo-nora",
+      "request": {
+        "decision": "reject",
+        "note": "Your current keyboard can be repaired by the service desk."
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "3565474f76c64e3fa9c76898d799cb4f",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "rejected",
+        "manager_decision": "reject",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "Your current keyboard can be repaired by the service desk.",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.manager_employee_view",
+      "method": "GET",
+      "path": "/v1/requests/3565474f76c64e3fa9c76898d799cb4f",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "3565474f76c64e3fa9c76898d799cb4f",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "Keyboard",
+        "reason": "I need a keyboard for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "rejected",
+        "manager_decision": "reject",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "Your current keyboard can be repaired by the service desk.",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.manager_it_queue",
+      "method": "GET",
+      "path": "/v1/requests",
+      "account": "demo-a-berlin-it",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "requests": [
+          {
+            "id": "55b34e1b852b4c67bd31ab24d6a94431",
+            "tenant_id": "A",
+            "employee_id": "A101",
+            "employee_name": "Alex Morgan",
+            "manager_id": "AM01",
+            "office": "Berlin",
+            "equipment": "Second monitor",
+            "reason": "I need a second monitor for my regular workstation tasks.",
+            "created_at": "2026-11-18T16:56:29+00:00",
+            "status": "approved",
+            "manager_decision": "approve",
+            "manager_at": "2026-11-18T16:56:29+00:00",
+            "manager_note": "",
+            "it_decision": "approve",
+            "it_at": "2026-11-18T16:56:29+00:00",
+            "it_note": "",
+            "manager_name": "Nora Weber",
+            "it_team": "Berlin IT",
+            "region": "Europe"
+          }
+        ],
+        "open": 0,
+        "name": "Northstar Services",
+        "plan": "Starter",
+        "limit": 2
+      }
+    },
+    {
+      "check": "decline.manager_terminal",
+      "method": "POST",
+      "path": "/v1/requests/3565474f76c64e3fa9c76898d799cb4f/decision",
+      "account": "demo-nora",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 409,
+      "http": 409,
+      "response": {
+        "error": "wrong_approval_stage"
+      }
+    },
+    {
+      "check": "decline.it_submit",
+      "method": "POST",
+      "path": "/v1/requests",
+      "account": "demo-alex",
+      "request": {
+        "equipment": "USB flash drive",
+        "employee_name": "Alex Morgan",
+        "employee_id": "A101",
+        "office": "Berlin",
+        "reason": "I need a usb flash drive for my regular workstation tasks."
+      },
+      "expected_http": 201,
+      "http": 201,
+      "response": {
+        "id": "f8d5fe0a834448e59147fd4a26adaa06",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_manager",
+        "manager_decision": null,
+        "manager_at": null,
+        "manager_note": null,
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.it_manager_approves",
+      "method": "POST",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06/decision",
+      "account": "demo-nora",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "f8d5fe0a834448e59147fd4a26adaa06",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.it_blank",
+      "method": "POST",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "reject",
+        "note": " \t\n "
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "decline_reason_required"
+      }
+    },
+    {
+      "check": "decline.it_too_long",
+      "method": "POST",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "reject",
+        "note": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "expected_http": 400,
+      "http": 400,
+      "response": {
+        "error": "invalid_decision"
+      }
+    },
+    {
+      "check": "decline.it_unchanged",
+      "method": "GET",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "f8d5fe0a834448e59147fd4a26adaa06",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "pending_it",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": null,
+        "it_at": null,
+        "it_note": null,
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.it_with_reason",
+      "method": "POST",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "reject",
+        "note": "  This office requires an encrypted USB drive from the approved catalogue.  "
+      },
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "f8d5fe0a834448e59147fd4a26adaa06",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "rejected",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "reject",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "This office requires an encrypted USB drive from the approved catalogue.",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.it_employee_view",
+      "method": "GET",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06",
+      "account": "demo-alex",
+      "request": null,
+      "expected_http": 200,
+      "http": 200,
+      "response": {
+        "id": "f8d5fe0a834448e59147fd4a26adaa06",
+        "tenant_id": "A",
+        "employee_id": "A101",
+        "employee_name": "Alex Morgan",
+        "manager_id": "AM01",
+        "office": "Berlin",
+        "equipment": "USB flash drive",
+        "reason": "I need a usb flash drive for my regular workstation tasks.",
+        "created_at": "2026-11-18T16:56:29+00:00",
+        "status": "rejected",
+        "manager_decision": "approve",
+        "manager_at": "2026-11-18T16:56:29+00:00",
+        "manager_note": "",
+        "it_decision": "reject",
+        "it_at": "2026-11-18T16:56:29+00:00",
+        "it_note": "This office requires an encrypted USB drive from the approved catalogue.",
+        "manager_name": "Nora Weber",
+        "it_team": "Berlin IT",
+        "region": "Europe"
+      }
+    },
+    {
+      "check": "decline.it_terminal",
+      "method": "POST",
+      "path": "/v1/requests/f8d5fe0a834448e59147fd4a26adaa06/decision",
+      "account": "demo-a-berlin-it",
+      "request": {
+        "decision": "approve"
+      },
+      "expected_http": 409,
+      "http": 409,
+      "response": {
+        "error": "wrong_approval_stage"
+      }
+    }
+  ]
+}
